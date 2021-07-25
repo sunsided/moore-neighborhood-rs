@@ -1,6 +1,24 @@
 /// Moore neighborhoods for dynamic ranges and dynamic dimensionality.
 pub mod dynamic {
     /// Obtains the Moore neighborhood for a region of width `range` for in the specified number of `dimensions`.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use moore_neighborhood::dynamic::moore;
+    ///
+    /// let mut result: Vec<Vec<isize>> = moore(1, 2);
+    ///
+    /// let mut expected = [
+    ///     [-1,-1], [ 0,-1], [ 1,-1],
+    ///     [-1, 0],          [ 1, 0],
+    ///     [-1, 1], [ 0, 1], [ 1, 1]
+    /// ];
+    ///
+    /// result.sort();
+    /// expected.sort();
+    /// assert_eq!(result, expected);
+    /// ```
     pub fn moore(range: u32, dimensions: u32) -> Vec<Vec<isize>> {
         let size: usize = range as usize * 2 + 1;
         let length: usize = size.pow(dimensions) - 1;
@@ -28,6 +46,24 @@ pub mod dynamic {
 /// Moore neighborhoods for dynamic ranges and statically known dimensionality.
 pub mod generic_dimension {
     /// Obtains the Moore neighborhood for a region of width `range` for in the specified number of `DIMENSIONS`.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use moore_neighborhood::generic_dimension::moore;
+    ///
+    /// let mut result: Vec<[isize; 2]> = moore(1);
+    ///
+    /// let mut expected = [
+    ///     [-1,-1], [ 0,-1], [ 1,-1],
+    ///     [-1, 0],          [ 1, 0],
+    ///     [-1, 1], [ 0, 1], [ 1, 1]
+    /// ];
+    ///
+    /// result.sort();
+    /// expected.sort();
+    /// assert_eq!(result, expected);
+    /// ```
     pub fn moore<const DIMENSIONS: usize>(range: u32) -> Vec<[isize; DIMENSIONS]> {
         assert!(DIMENSIONS < u32::MAX as _);
 
@@ -58,6 +94,24 @@ pub mod generic_dimension {
 pub mod generic_full {
     /// Obtains the Moore neighborhood for a region of width `RANGE` for in the specified number of `DIMENSIONS`.
     /// The returned array has length `LENGTH`, which is determined as `(2*RANGE+1).pow(DIMENSIONS) - 1`.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use moore_neighborhood::generic_full::moore;
+    ///
+    /// let mut result: [[isize; 2]; 8] = moore::<1, 2, 8>();
+    ///
+    /// let mut expected = [
+    ///     [-1,-1], [ 0,-1], [ 1,-1],
+    ///     [-1, 0],          [ 1, 0],
+    ///     [-1, 1], [ 0, 1], [ 1, 1]
+    /// ];
+    ///
+    /// result.sort();
+    /// expected.sort();
+    /// assert_eq!(result, expected);
+    /// ```
     #[inline]
     pub fn moore<const RANGE: u32, const DIMENSIONS: usize, const LENGTH: usize>(
     ) -> [[isize; DIMENSIONS]; LENGTH] {
@@ -75,6 +129,27 @@ pub mod generic_full {
 
     /// Obtains the Moore neighborhood for a region of width `RANGE` for in the specified number of `DIMENSIONS`.
     /// The provided array needs to have a length of at least `LENGTH`, which is required to be `(2*RANGE+1).pow(DIMENSIONS) - 1`.
+    ///
+    /// ## Example
+    ///
+    /// ```rust
+    /// use moore_neighborhood::generic_full::moore_prealloc;
+    ///
+    /// let mut neighbors = [[0isize; 2]; 8];
+    /// let length = moore_prealloc::<1, 2, 8>(&mut neighbors);
+    ///
+    /// let mut expected = [
+    ///     [-1,-1], [ 0,-1], [ 1,-1],
+    ///     [-1, 0],          [ 1, 0],
+    ///     [-1, 1], [ 0, 1], [ 1, 1]
+    /// ];
+    ///
+    /// neighbors.sort();
+    /// expected.sort();
+    ///
+    /// assert_eq!(length, 8);
+    /// assert_eq!(neighbors, expected);
+    /// ```
     pub fn moore_prealloc<const RANGE: u32, const DIMENSIONS: usize, const LENGTH: usize>(
         neighbors: &mut [[isize; DIMENSIONS]; LENGTH],
     ) -> usize {
@@ -106,6 +181,20 @@ pub mod generic_full {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn dyn_d1_r1_works() {
+        let mut result = dynamic::moore(1, 1);
+
+        #[rustfmt::skip]
+            let mut expected = [
+            [-1],          [ 1],
+        ];
+
+        result.sort();
+        expected.sort();
+        assert_eq!(result, expected);
+    }
 
     #[test]
     fn dyn_d2_r1_works() {
