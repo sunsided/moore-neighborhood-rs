@@ -1,4 +1,6 @@
+/// Moore neighborhoods for dynamic ranges and dynamic dimensionality.
 pub mod dynamic {
+    /// Obtains the Moore neighborhood for a region of width `range` for in the specified number of `dimensions`.
     pub fn moore(range: u32, dimensions: u32) -> Vec<Vec<isize>> {
         let size: usize = range as usize * 2 + 1;
         let length: usize = size.pow(dimensions) - 1;
@@ -23,7 +25,9 @@ pub mod dynamic {
     }
 }
 
+/// Moore neighborhoods for dynamic ranges and statically known dimensionality.
 pub mod generic_dimension {
+    /// Obtains the Moore neighborhood for a region of width `range` for in the specified number of `DIMENSIONS`.
     pub fn moore<const DIMENSIONS: usize>(range: u32) -> Vec<[isize; DIMENSIONS]> {
         assert!(DIMENSIONS < u32::MAX as _);
 
@@ -50,7 +54,10 @@ pub mod generic_dimension {
     }
 }
 
+/// Fully generic Moore neighborhoods for statically known ranges and dimensionality.
 pub mod generic_full {
+    /// Obtains the Moore neighborhood for a region of width `RANGE` for in the specified number of `DIMENSIONS`.
+    /// The returned array has length `LENGTH`, which is determined as `(2*RANGE+1).pow(DIMENSIONS) - 1`.
     #[inline]
     pub fn moore<const RANGE: u32, const DIMENSIONS: usize, const LENGTH: usize>(
     ) -> [[isize; DIMENSIONS]; LENGTH] {
@@ -66,6 +73,8 @@ pub mod generic_full {
         neighbors
     }
 
+    /// Obtains the Moore neighborhood for a region of width `RANGE` for in the specified number of `DIMENSIONS`.
+    /// The provided array needs to have a length of at least `LENGTH`, which is required to be `(2*RANGE+1).pow(DIMENSIONS) - 1`.
     pub fn moore_prealloc<const RANGE: u32, const DIMENSIONS: usize, const LENGTH: usize>(
         neighbors: &mut [[isize; DIMENSIONS]; LENGTH],
     ) -> usize {
@@ -73,7 +82,7 @@ pub mod generic_full {
 
         let size: usize = RANGE as usize * 2 + 1;
         let length = size.pow(DIMENSIONS as _) - 1;
-        assert!(LENGTH >= length);
+        debug_assert!(LENGTH >= length);
 
         let half_length = LENGTH / 2;
         for i in 0usize..LENGTH {
@@ -85,6 +94,7 @@ pub mod generic_full {
                 let divisor = prev_divisor * size;
                 let value = index % divisor;
                 neighbor[dimension] = (value / prev_divisor) as isize - RANGE as isize;
+                println!("index = {}, prev_divisor = {}, divisor = {}, value = {}, value/prev_divisor = {}", index, prev_divisor, divisor, value, value/prev_divisor);
                 prev_divisor = divisor;
                 index -= value;
             }
@@ -187,6 +197,54 @@ mod tests {
 
         #[rustfmt::skip]
         let mut expected = [
+            [-1,-1,-1], [ 0,-1,-1], [ 1,-1,-1],
+            [-1, 0,-1], [ 0, 0,-1], [ 1, 0,-1],
+            [-1, 1,-1], [ 0, 1,-1], [ 1, 1,-1],
+
+            [-1,-1, 0], [ 0,-1, 0], [ 1,-1, 0],
+            [-1, 0, 0],             [ 1, 0, 0],
+            [-1, 1, 0], [ 0, 1, 0], [ 1, 1, 0],
+
+            [-1,-1, 1], [ 0,-1, 1], [ 1,-1, 1],
+            [-1, 0, 1], [ 0, 0, 1], [ 1, 0, 1],
+            [-1, 1, 1], [ 0, 1, 1], [ 1, 1, 1]
+        ];
+
+        result.sort();
+        expected.sort();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn gen_dim_d3_r1_works() {
+        let mut result = generic_dimension::moore::<3>(1);
+
+        #[rustfmt::skip]
+            let mut expected = [
+            [-1,-1,-1], [ 0,-1,-1], [ 1,-1,-1],
+            [-1, 0,-1], [ 0, 0,-1], [ 1, 0,-1],
+            [-1, 1,-1], [ 0, 1,-1], [ 1, 1,-1],
+
+            [-1,-1, 0], [ 0,-1, 0], [ 1,-1, 0],
+            [-1, 0, 0],             [ 1, 0, 0],
+            [-1, 1, 0], [ 0, 1, 0], [ 1, 1, 0],
+
+            [-1,-1, 1], [ 0,-1, 1], [ 1,-1, 1],
+            [-1, 0, 1], [ 0, 0, 1], [ 1, 0, 1],
+            [-1, 1, 1], [ 0, 1, 1], [ 1, 1, 1]
+        ];
+
+        result.sort();
+        expected.sort();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn gen_x_d3_r1_works() {
+        let mut result = generic_full::moore::<1, 3, 26>();
+
+        #[rustfmt::skip]
+            let mut expected = [
             [-1,-1,-1], [ 0,-1,-1], [ 1,-1,-1],
             [-1, 0,-1], [ 0, 0,-1], [ 1, 0,-1],
             [-1, 1,-1], [ 0, 1,-1], [ 1, 1,-1],
