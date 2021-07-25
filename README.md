@@ -14,7 +14,25 @@ The code was ported from [hughsk/moore].
 
 ```rust
 fn example() {
-    let mut result = moore(1, 2);
+    let mut result: Vec<Vec<isize>> = moore_dynamic(1, 2);
+    
+    let mut expected = [
+        [-1,-1], [ 0,-1], [ 1,-1],
+        [-1, 0],          [ 1, 0],
+        [-1, 1], [ 0, 1], [ 1, 1]
+    ];
+
+    result.sort();
+    expected.sort();
+    assert_eq!(result, expected);
+}
+```
+
+Using const generics for the dimension:
+
+```rust
+fn example() {
+    let mut result: Vec<[isize; 2]> = moore(1);
     
     let mut expected = [
         [-1,-1], [ 0,-1], [ 1,-1],
