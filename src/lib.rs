@@ -233,10 +233,10 @@ pub mod generic_dimension {
             let mut neighbor = [0; DIMENSIONS];
             let mut index = if i < half_length { i } else { i + 1 };
             let mut prev_divisor = 1;
-            for dimension in 0..DIMENSIONS {
+            for dimension in neighbor.iter_mut().take(DIMENSIONS) {
                 let divisor = prev_divisor * size;
                 let value = index % divisor;
-                neighbor[dimension] = (value / prev_divisor) as isize - range as isize;
+                *dimension = (value / prev_divisor) as isize - range as isize;
                 prev_divisor = divisor;
                 index -= value;
             }
@@ -369,15 +369,13 @@ pub mod generic_full {
         debug_assert!(LENGTH >= length);
 
         let half_length = LENGTH / 2;
-        for i in 0usize..LENGTH {
-            let neighbor = &mut neighbors[i];
-
+        for (i, neighbor) in neighbors.iter_mut().enumerate().take(LENGTH) {
             let mut index = if i < half_length { i } else { i + 1 };
             let mut prev_divisor = 1;
-            for dimension in 0..DIMENSIONS {
+            for dimension in neighbor.iter_mut().take(DIMENSIONS) {
                 let divisor = prev_divisor * size;
                 let value = index % divisor;
-                neighbor[dimension] = (value / prev_divisor) as isize - RANGE as isize;
+                *dimension = (value / prev_divisor) as isize - RANGE as isize;
                 prev_divisor = divisor;
                 index -= value;
             }
