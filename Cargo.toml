@@ -14,6 +14,10 @@ repository = "https://github.com/sunsided/moore-neighborhood-rs"
 name = "port_benchmark"
 harness = false
 
+[features]
+default = ["std"]
+std = []
+
 [dependencies]
 
 [dev-dependencies]

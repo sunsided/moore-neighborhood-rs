@@ -8,6 +8,7 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - Added the `moore!` macro to simplify the use of the const generic functions.
+- Added `no_std` support.
 
 ## 0.1.0 - 2021-07-25
 
