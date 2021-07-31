@@ -1,6 +1,6 @@
 [package]
 name = "moore-neighborhood"
-version = "0.2.0-beta"
+version = "0.2.0"
 description = "Calculates Moore neighborhoods (8-connected) for arbitrary ranges and dimensions"
 keywords = ["neighborhood", "8-connected", "moore"]
 categories = ["computer-vision", "graphics", "game-development"]
@@ -8,6 +8,7 @@ authors = ["Markus Mayer <widemeadows@gmail.com>"]
 edition = "2018"
 license = "MIT"
 readme = "README.md"
+changelog = "CHANGELOG.md"
 repository = "https://github.com/sunsided/moore-neighborhood-rs"
 
 [[bench]]
