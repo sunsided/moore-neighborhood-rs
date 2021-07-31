@@ -1,6 +1,6 @@
 [package]
 name = "moore-neighborhood"
-version = "0.1.0"
+version = "0.2.0-beta"
 description = "Calculates Moore neighborhoods (8-connected) for arbitrary ranges and dimensions"
 keywords = ["neighborhood", "8-connected", "moore"]
 categories = ["computer-vision", "graphics", "game-development"]

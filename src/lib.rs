@@ -7,16 +7,14 @@ pub mod dynamic {
     /// ```rust
     /// use moore_neighborhood::dynamic::moore;
     ///
-    /// let mut result: Vec<Vec<isize>> = moore(1, 2);
+    /// let result: Vec<Vec<isize>> = moore(1, 2);
     ///
-    /// let mut expected = [
+    /// let expected = [
     ///     [-1,-1], [ 0,-1], [ 1,-1],
     ///     [-1, 0],          [ 1, 0],
     ///     [-1, 1], [ 0, 1], [ 1, 1]
     /// ];
     ///
-    /// result.sort();
-    /// expected.sort();
     /// assert_eq!(result, expected);
     /// ```
     pub fn moore(range: u32, dimensions: u32) -> Vec<Vec<isize>> {
@@ -52,16 +50,14 @@ pub mod generic_dimension {
     /// ```rust
     /// use moore_neighborhood::generic_dimension::moore;
     ///
-    /// let mut result: Vec<[isize; 2]> = moore(1);
+    /// let result: Vec<[isize; 2]> = moore(1);
     ///
-    /// let mut expected = [
+    /// let expected = [
     ///     [-1,-1], [ 0,-1], [ 1,-1],
     ///     [-1, 0],          [ 1, 0],
     ///     [-1, 1], [ 0, 1], [ 1, 1]
     /// ];
     ///
-    /// result.sort();
-    /// expected.sort();
     /// assert_eq!(result, expected);
     /// ```
     pub fn moore<const DIMENSIONS: usize>(range: u32) -> Vec<[isize; DIMENSIONS]> {
@@ -100,16 +96,14 @@ pub mod generic_full {
     /// ```rust
     /// use moore_neighborhood::generic_full::moore;
     ///
-    /// let mut result: [[isize; 2]; 8] = moore::<1, 2, 8>();
+    /// let result: [[isize; 2]; 8] = moore::<1, 2, 8>();
     ///
-    /// let mut expected = [
+    /// let expected = [
     ///     [-1,-1], [ 0,-1], [ 1,-1],
     ///     [-1, 0],          [ 1, 0],
     ///     [-1, 1], [ 0, 1], [ 1, 1]
     /// ];
     ///
-    /// result.sort();
-    /// expected.sort();
     /// assert_eq!(result, expected);
     /// ```
     #[inline]
@@ -138,14 +132,11 @@ pub mod generic_full {
     /// let mut neighbors = [[0isize; 2]; 8];
     /// let length = moore_prealloc::<1, 2, 8>(&mut neighbors);
     ///
-    /// let mut expected = [
+    /// let expected = [
     ///     [-1,-1], [ 0,-1], [ 1,-1],
     ///     [-1, 0],          [ 1, 0],
     ///     [-1, 1], [ 0, 1], [ 1, 1]
     /// ];
-    ///
-    /// neighbors.sort();
-    /// expected.sort();
     ///
     /// assert_eq!(length, 8);
     /// assert_eq!(neighbors, expected);
@@ -169,7 +160,6 @@ pub mod generic_full {
                 let divisor = prev_divisor * size;
                 let value = index % divisor;
                 neighbor[dimension] = (value / prev_divisor) as isize - RANGE as isize;
-                println!("index = {}, prev_divisor = {}, divisor = {}, value = {}, value/prev_divisor = {}", index, prev_divisor, divisor, value, value/prev_divisor);
                 prev_divisor = divisor;
                 index -= value;
             }
@@ -178,78 +168,168 @@ pub mod generic_full {
     }
 }
 
+/// Obtains the Moore neighborhood for a region of width `RANGE` for in the specified number of `DIMENSIONS`.
+/// The returned array has length `LENGTH`, which is determined as `(2*RANGE+1).pow(DIMENSIONS) - 1`.
+///
+/// ## Example
+///
+/// Using the default range with two dimensions:
+///
+/// ```rust
+/// use moore_neighborhood::moore;
+///
+/// fn main() {
+///     let result: [[isize; 2]; 8] = moore!(1);
+///
+///     let expected = [
+///         [-1,-1], [ 0,-1], [ 1,-1],
+///         [-1, 0],          [ 1, 0],
+///         [-1, 1], [ 0, 1], [ 1, 1]
+///     ];
+///
+///     assert_eq!(result, expected);
+/// }
+/// ```
+///
+/// Using a custom range (here: `1`) with two dimensions:
+///
+/// ```rust
+/// use moore_neighborhood::moore;
+///
+/// fn main() {
+///     let result: [[isize; 2]; 8] = moore!(1);
+///
+///     let expected = [
+///         [-1,-1], [ 0,-1], [ 1,-1],
+///         [-1, 0],          [ 1, 0],
+///         [-1, 1], [ 0, 1], [ 1, 1]
+///     ];
+///
+///     assert_eq!(result, expected);
+/// }
+/// ```
+///
+/// Using a custom range (here: `1`) with custom dimensions (here: `2`):
+///
+/// ```rust
+/// use moore_neighborhood::moore;
+///
+/// fn main() {
+///     let result: [[isize; 2]; 8] = moore!(1, 2);
+///
+///     let expected = [
+///         [-1,-1], [ 0,-1], [ 1,-1],
+///         [-1, 0],          [ 1, 0],
+///         [-1, 1], [ 0, 1], [ 1, 1]
+///     ];
+///
+///     assert_eq!(result, expected);
+/// }
+/// ```
+#[macro_export]
+macro_rules! moore {
+    ($range: tt, $dims: tt) => {{
+        const RANGE: u32 = $range;
+        const DIMS: usize = $dims;
+        const NUM_FIELDS: usize = ((2 * RANGE as usize + 1).pow(DIMS as u32) - 1);
+        crate::moore_neighborhood::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
+    }};
+
+    ($range: tt) => {{
+        const RANGE: u32 = $range;
+        const DIMS: usize = 2;
+        const NUM_FIELDS: usize = ((2 * RANGE as usize + 1).pow(DIMS as u32) - 1);
+        crate::moore_neighborhood::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
+    }};
+
+    () => {{
+        const RANGE: u32 = 1;
+        const DIMS: usize = 2;
+        const NUM_FIELDS: usize = ((2 * RANGE as usize + 1).pow(DIMS as u32) - 1);
+        crate::moore_neighborhood::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
+    }};
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn dyn_d1_r1_works() {
-        let mut result = dynamic::moore(1, 1);
+    fn macro_d1_r1_works() {
+        let result: [[isize; 1]; 2] = moore!(1, 1);
+        let expected = [[-1], [1]];
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn macro_d2_r1_works() {
+        let result: [[isize; 2]; 8] = moore!(1, 2);
 
         #[rustfmt::skip]
-            let mut expected = [
-            [-1],          [ 1],
+        let expected = [
+            [-1,-1], [ 0,-1], [ 1,-1],
+            [-1, 0],          [ 1, 0],
+            [-1, 1], [ 0, 1], [ 1, 1]
         ];
 
-        result.sort();
-        expected.sort();
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn dyn_d1_r1_works() {
+        let result = dynamic::moore(1, 1);
+        let expected = [[-1], [1]];
         assert_eq!(result, expected);
     }
 
     #[test]
     fn dyn_d2_r1_works() {
-        let mut result = dynamic::moore(1, 2);
+        let result = dynamic::moore(1, 2);
 
         #[rustfmt::skip]
-        let mut expected = [
+        let expected = [
             [-1,-1], [ 0,-1], [ 1,-1],
             [-1, 0],          [ 1, 0],
             [-1, 1], [ 0, 1], [ 1, 1]
         ];
 
-        result.sort();
-        expected.sort();
         assert_eq!(result, expected);
     }
 
     #[test]
     fn gen_dim_d2_r1_works() {
-        let mut result: Vec<[isize; 2]> = generic_dimension::moore(1);
+        let result: Vec<[isize; 2]> = generic_dimension::moore(1);
 
         #[rustfmt::skip]
-        let mut expected = [
+        let expected = [
             [-1,-1], [ 0,-1], [ 1,-1],
             [-1, 0],          [ 1, 0],
             [-1, 1], [ 0, 1], [ 1, 1]
         ];
 
-        result.sort();
-        expected.sort();
         assert_eq!(result, expected);
     }
 
     #[test]
     fn gen_x_d2_r1_works() {
-        let mut result: [[isize; 2]; 8] = generic_full::moore::<1, 2, 8>();
+        let result: [[isize; 2]; 8] = generic_full::moore::<1, 2, 8>();
 
         #[rustfmt::skip]
-        let mut expected = [
+        let expected = [
             [-1,-1], [ 0,-1], [ 1,-1],
             [-1, 0],          [ 1, 0],
             [-1, 1], [ 0, 1], [ 1, 1]
         ];
 
-        result.sort();
-        expected.sort();
         assert_eq!(result, expected);
     }
 
     #[test]
     fn dyn_d2_r2_works() {
-        let mut result = dynamic::moore(2, 2);
+        let result = dynamic::moore(2, 2);
 
         #[rustfmt::skip]
-        let mut expected = [
+        let expected = [
             [-2,-2], [-1,-2], [ 0,-2], [ 1,-2], [ 2,-2],
             [-2,-1], [-1,-1], [ 0,-1], [ 1,-1], [ 2,-1],
             [-2, 0], [-1, 0],          [ 1, 0], [ 2, 0],
@@ -257,17 +337,15 @@ mod tests {
             [-2, 2], [-1, 2], [ 0, 2], [ 1, 2], [ 2, 2]
         ];
 
-        result.sort();
-        expected.sort();
         assert_eq!(result, expected);
     }
 
     #[test]
     fn gen_dim_d2_r2_works() {
-        let mut result: Vec<[isize; 2]> = generic_dimension::moore(2);
+        let result: Vec<[isize; 2]> = generic_dimension::moore(2);
 
         #[rustfmt::skip]
-        let mut expected = [
+        let expected = [
             [-2,-2], [-1,-2], [ 0,-2], [ 1,-2], [ 2,-2],
             [-2,-1], [-1,-1], [ 0,-1], [ 1,-1], [ 2,-1],
             [-2, 0], [-1, 0],          [ 1, 0], [ 2, 0],
@@ -275,17 +353,15 @@ mod tests {
             [-2, 2], [-1, 2], [ 0, 2], [ 1, 2], [ 2, 2]
         ];
 
-        result.sort();
-        expected.sort();
         assert_eq!(result, expected);
     }
 
     #[test]
     fn dyn_d3_r1_works() {
-        let mut result = dynamic::moore(1, 3);
+        let result = dynamic::moore(1, 3);
 
         #[rustfmt::skip]
-        let mut expected = [
+        let expected = [
             [-1,-1,-1], [ 0,-1,-1], [ 1,-1,-1],
             [-1, 0,-1], [ 0, 0,-1], [ 1, 0,-1],
             [-1, 1,-1], [ 0, 1,-1], [ 1, 1,-1],
@@ -299,17 +375,15 @@ mod tests {
             [-1, 1, 1], [ 0, 1, 1], [ 1, 1, 1]
         ];
 
-        result.sort();
-        expected.sort();
         assert_eq!(result, expected);
     }
 
     #[test]
     fn gen_dim_d3_r1_works() {
-        let mut result = generic_dimension::moore::<3>(1);
+        let result = generic_dimension::moore::<3>(1);
 
         #[rustfmt::skip]
-            let mut expected = [
+        let expected = [
             [-1,-1,-1], [ 0,-1,-1], [ 1,-1,-1],
             [-1, 0,-1], [ 0, 0,-1], [ 1, 0,-1],
             [-1, 1,-1], [ 0, 1,-1], [ 1, 1,-1],
@@ -323,17 +397,15 @@ mod tests {
             [-1, 1, 1], [ 0, 1, 1], [ 1, 1, 1]
         ];
 
-        result.sort();
-        expected.sort();
         assert_eq!(result, expected);
     }
 
     #[test]
     fn gen_x_d3_r1_works() {
-        let mut result = generic_full::moore::<1, 3, 26>();
+        let result = generic_full::moore::<1, 3, 26>();
 
         #[rustfmt::skip]
-            let mut expected = [
+        let expected = [
             [-1,-1,-1], [ 0,-1,-1], [ 1,-1,-1],
             [-1, 0,-1], [ 0, 0,-1], [ 1, 0,-1],
             [-1, 1,-1], [ 0, 1,-1], [ 1, 1,-1],
@@ -347,8 +419,6 @@ mod tests {
             [-1, 1, 1], [ 0, 1, 1], [ 1, 1, 1]
         ];
 
-        result.sort();
-        expected.sort();
         assert_eq!(result, expected);
     }
 

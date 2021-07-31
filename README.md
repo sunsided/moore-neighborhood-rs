@@ -1,4 +1,4 @@
-# Moore neighborhoods (8-connected)
+# Moore neighborhoods (8-connected) in _N_ dimensions
 
 A little library for generating [Moore neighborhoods] (i.e., the surrounding cells of a single cell in a grid)
 of arbitrary range and dimensions. Or, the red edge squares for a blue center square:
@@ -11,6 +11,26 @@ The code was ported from [hughsk/moore] and adjusted for Rust features such as c
 [hughsk/moore]: https://github.com/hughsk/moore
 
 ## Usage example
+
+Using the `moore!` macro, when both the dimensionality and range are statically known:
+
+```rust
+use moore_neighboorhood::moore;
+
+fn example() {
+    let mut result: [[isize; 2]; 8] = moore!(1, 2);
+
+    let mut expected = [
+        [-1,-1], [ 0,-1], [ 1,-1],
+        [-1, 0],          [ 1, 0],
+        [-1, 1], [ 0, 1], [ 1, 1]
+    ];
+
+    assert_eq!(result, expected);
+}
+```
+
+When dynamic sizes are required:
 
 ```rust
 use moore_neighboorhood::dynamic::moore;
@@ -30,7 +50,7 @@ fn example() {
 }
 ```
 
-Using const generics for the dimension:
+When the dimensionality is statically known but the range may change:
 
 ```rust
 use moore_neighboorhood::generic_dimension::moore;
