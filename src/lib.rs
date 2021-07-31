@@ -1,5 +1,87 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
+/// Obtains the Moore neighborhood for a region of width `RANGE` for in the specified number of `DIMENSIONS`.
+/// The returned array has length `LENGTH`, which is determined as `(2*RANGE+1).pow(DIMENSIONS) - 1`.
+///
+/// ## Example
+///
+/// Using the default range with two dimensions:
+///
+/// ```rust
+/// use moore_neighborhood::moore;
+///
+/// fn main() {
+///     let result: [[isize; 2]; 8] = moore!(1);
+///
+///     let expected = [
+///         [-1,-1], [ 0,-1], [ 1,-1],
+///         [-1, 0],          [ 1, 0],
+///         [-1, 1], [ 0, 1], [ 1, 1]
+///     ];
+///
+///     assert_eq!(result, expected);
+/// }
+/// ```
+///
+/// Using a custom range (here: `1`) with two dimensions:
+///
+/// ```rust
+/// use moore_neighborhood::moore;
+///
+/// fn main() {
+///     let result: [[isize; 2]; 8] = moore!(1);
+///
+///     let expected = [
+///         [-1,-1], [ 0,-1], [ 1,-1],
+///         [-1, 0],          [ 1, 0],
+///         [-1, 1], [ 0, 1], [ 1, 1]
+///     ];
+///
+///     assert_eq!(result, expected);
+/// }
+/// ```
+///
+/// Using a custom range (here: `1`) with custom dimensions (here: `2`):
+///
+/// ```rust
+/// use moore_neighborhood::moore;
+///
+/// fn main() {
+///     let result: [[isize; 2]; 8] = moore!(1, 2);
+///
+///     let expected = [
+///         [-1,-1], [ 0,-1], [ 1,-1],
+///         [-1, 0],          [ 1, 0],
+///         [-1, 1], [ 0, 1], [ 1, 1]
+///     ];
+///
+///     assert_eq!(result, expected);
+/// }
+/// ```
+#[macro_export]
+macro_rules! moore {
+    ($range: tt, $dims: tt) => {{
+        const RANGE: u32 = $range;
+        const DIMS: usize = $dims;
+        const NUM_FIELDS: usize = ((2 * RANGE as usize + 1).pow(DIMS as u32) - 1);
+        $crate::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
+    }};
+
+    ($range: tt) => {{
+        const RANGE: u32 = $range;
+        const DIMS: usize = 2;
+        const NUM_FIELDS: usize = ((2 * RANGE as usize + 1).pow(DIMS as u32) - 1);
+        $crate::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
+    }};
+
+    () => {{
+        const RANGE: u32 = 1;
+        const DIMS: usize = 2;
+        const NUM_FIELDS: usize = ((2 * RANGE as usize + 1).pow(DIMS as u32) - 1);
+        $crate::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
+    }};
+}
+
 /// Moore neighborhoods for dynamic ranges and dynamic dimensionality.
 #[cfg(feature = "std")]
 pub mod dynamic {
@@ -188,11 +270,11 @@ pub mod generic_dimension {
 
             #[rustfmt::skip]
             let expected = [
-                [-2, -2], [-1, -2], [0, -2], [1, -2], [2, -2],
-                [-2, -1], [-1, -1], [0, -1], [1, -1], [2, -1],
-                [-2, 0], [-1, 0], [1, 0], [2, 0],
-                [-2, 1], [-1, 1], [0, 1], [1, 1], [2, 1],
-                [-2, 2], [-1, 2], [0, 2], [1, 2], [2, 2]
+                [-2, -2], [-1, -2], [ 0, -2], [ 1, -2], [ 2, -2],
+                [-2, -1], [-1, -1], [ 0, -1], [ 1, -1], [ 2, -1],
+                [-2,  0], [-1,  0],           [ 1,  0], [ 2,  0],
+                [-2,  1], [-1,  1], [ 0,  1], [ 1,  1], [ 2,  1],
+                [-2,  2], [-1,  2], [ 0,  2], [ 1,  2], [ 2,  2]
             ];
 
             assert_eq!(result, expected);
@@ -204,15 +286,17 @@ pub mod generic_dimension {
 
             #[rustfmt::skip]
             let expected = [
-                [-1, -1, -1], [0, -1, -1], [1, -1, -1],
-                [-1, 0, -1], [0, 0, -1], [1, 0, -1],
-                [-1, 1, -1], [0, 1, -1], [1, 1, -1],
-                [-1, -1, 0], [0, -1, 0], [1, -1, 0],
-                [-1, 0, 0], [1, 0, 0],
-                [-1, 1, 0], [0, 1, 0], [1, 1, 0],
-                [-1, -1, 1], [0, -1, 1], [1, -1, 1],
-                [-1, 0, 1], [0, 0, 1], [1, 0, 1],
-                [-1, 1, 1], [0, 1, 1], [1, 1, 1]
+                [-1, -1, -1], [ 0, -1, -1], [ 1, -1, -1],
+                [-1,  0, -1], [ 0,  0, -1], [ 1,  0, -1],
+                [-1,  1, -1], [ 0,  1, -1], [ 1,  1, -1],
+
+                [-1, -1,  0], [ 0, -1,  0], [ 1, -1,  0],
+                [-1,  0,  0],               [ 1,  0,  0],
+                [-1,  1,  0], [ 0,  1,  0], [ 1,  1,  0],
+
+                [-1, -1,  1], [ 0, -1,  1], [ 1, -1,  1],
+                [-1,  0,  1], [ 0,  0,  1], [ 1,  0,  1],
+                [-1,  1,  1], [ 0,  1,  1], [ 1,  1,  1]
             ];
 
             assert_eq!(result, expected);
@@ -341,88 +425,6 @@ pub mod generic_full {
             assert_eq!(result, expected);
         }
     }
-}
-
-/// Obtains the Moore neighborhood for a region of width `RANGE` for in the specified number of `DIMENSIONS`.
-/// The returned array has length `LENGTH`, which is determined as `(2*RANGE+1).pow(DIMENSIONS) - 1`.
-///
-/// ## Example
-///
-/// Using the default range with two dimensions:
-///
-/// ```rust
-/// use moore_neighborhood::moore;
-///
-/// fn main() {
-///     let result: [[isize; 2]; 8] = moore!(1);
-///
-///     let expected = [
-///         [-1,-1], [ 0,-1], [ 1,-1],
-///         [-1, 0],          [ 1, 0],
-///         [-1, 1], [ 0, 1], [ 1, 1]
-///     ];
-///
-///     assert_eq!(result, expected);
-/// }
-/// ```
-///
-/// Using a custom range (here: `1`) with two dimensions:
-///
-/// ```rust
-/// use moore_neighborhood::moore;
-///
-/// fn main() {
-///     let result: [[isize; 2]; 8] = moore!(1);
-///
-///     let expected = [
-///         [-1,-1], [ 0,-1], [ 1,-1],
-///         [-1, 0],          [ 1, 0],
-///         [-1, 1], [ 0, 1], [ 1, 1]
-///     ];
-///
-///     assert_eq!(result, expected);
-/// }
-/// ```
-///
-/// Using a custom range (here: `1`) with custom dimensions (here: `2`):
-///
-/// ```rust
-/// use moore_neighborhood::moore;
-///
-/// fn main() {
-///     let result: [[isize; 2]; 8] = moore!(1, 2);
-///
-///     let expected = [
-///         [-1,-1], [ 0,-1], [ 1,-1],
-///         [-1, 0],          [ 1, 0],
-///         [-1, 1], [ 0, 1], [ 1, 1]
-///     ];
-///
-///     assert_eq!(result, expected);
-/// }
-/// ```
-#[macro_export]
-macro_rules! moore {
-    ($range: tt, $dims: tt) => {{
-        const RANGE: u32 = $range;
-        const DIMS: usize = $dims;
-        const NUM_FIELDS: usize = ((2 * RANGE as usize + 1).pow(DIMS as u32) - 1);
-        $crate::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
-    }};
-
-    ($range: tt) => {{
-        const RANGE: u32 = $range;
-        const DIMS: usize = 2;
-        const NUM_FIELDS: usize = ((2 * RANGE as usize + 1).pow(DIMS as u32) - 1);
-        $crate::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
-    }};
-
-    () => {{
-        const RANGE: u32 = 1;
-        const DIMS: usize = 2;
-        const NUM_FIELDS: usize = ((2 * RANGE as usize + 1).pow(DIMS as u32) - 1);
-        $crate::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
-    }};
 }
 
 #[cfg(test)]
