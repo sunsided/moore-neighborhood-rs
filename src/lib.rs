@@ -407,21 +407,21 @@ macro_rules! moore {
         const RANGE: u32 = $range;
         const DIMS: usize = $dims;
         const NUM_FIELDS: usize = ((2 * RANGE as usize + 1).pow(DIMS as u32) - 1);
-        crate::moore_neighborhood::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
+        $crate::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
     }};
 
     ($range: tt) => {{
         const RANGE: u32 = $range;
         const DIMS: usize = 2;
         const NUM_FIELDS: usize = ((2 * RANGE as usize + 1).pow(DIMS as u32) - 1);
-        crate::moore_neighborhood::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
+        $crate::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
     }};
 
     () => {{
         const RANGE: u32 = 1;
         const DIMS: usize = 2;
         const NUM_FIELDS: usize = ((2 * RANGE as usize + 1).pow(DIMS as u32) - 1);
-        crate::moore_neighborhood::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
+        $crate::generic_full::moore::<RANGE, DIMS, NUM_FIELDS>()
     }};
 }
 
