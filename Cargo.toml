@@ -34,4 +34,4 @@ std = []
 [dependencies]
 
 [dev-dependencies]
-criterion = "0.3.4"
+criterion = "0.4.0"
